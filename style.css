@@ -1,0 +1,46 @@
+body {
+    display: flex;
+    margin: 0;
+    gap: 2px;
+    padding: 4px;
+    overflow: hidden;
+}
+
+body video {
+    width: 100%;
+    object-fit: fit;
+    border: 2px solid white;
+    background: black;
+    display: none;
+}
+
+#myVideo {
+    flex: 2;
+}
+
+#sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#opponentVideo {
+    display: block;
+}
+#chatLog {
+    display: block;
+}
+#chatInput {
+    width: 100%;
+}
+#signalButton {
+    width: 200px;
+    height: 50px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
