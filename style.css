@@ -1,3 +1,14 @@
+#leaveButton {
+  width: 100%;
+  margin-top: 4px;
+  height: 40px;
+  font-size: 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
 body {
     display: flex;
     margin: 0;
@@ -15,6 +26,7 @@ body video {
 
 #myVideo {
     flex: 2;
+    transform: scaleX(-1);
 }
 
 #sidebar {
@@ -24,15 +36,22 @@ body video {
     gap: 2px;
 }
 
-#opponentVideo {
-    display: block;
+#chatContainer {
+    display: flex;
+    flex-direction: column;
 }
+
 #chatLog {
     display: block;
+    flex: 1;
+    max-height: 200px;
+    overflow-y: auto;
 }
+
 #textField {
     width: 100%;
 }
+
 #matchmakeButton  {
     width: 200px;
     height: 50px;
@@ -42,4 +61,39 @@ body video {
     border: none;
     border-radius: 8px;
     cursor: pointer;
+}
+
+#loadingSpinner {
+  width: 40px;
+  height: 40px;
+  margin: 20px auto;
+}
+
+.spinner-icon {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.my-message {
+  text-align: right;
+  background-color: #dcf8c6;
+  padding: 5px;
+  margin: 4px;
+  border-radius: 5px;
+}
+
+.opponent-message {
+  text-align: left;
+  background-color: #f1f0f0;
+  padding: 5px;
+  margin: 4px;
+  border-radius: 5px;
+}
+
+#opponentVideo {
+    display: block;
 }
