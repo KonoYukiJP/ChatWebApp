@@ -1,90 +1,69 @@
 // pixi.js
 
-// Hide sidebar and opponentVideo immediately so they are not visible on initial load
+// Elements
 const sidebar = document.getElementById("sidebar");
 const opponentVideo = document.getElementById("opponentVideo");
-if (sidebar) sidebar.style.display = "none";
-if (opponentVideo) opponentVideo.style.display = "none";
 
 // WebRTC Peer Connection and Data Channel
 let rtcPeerConnection = null;
 let dataChannel = null;
-let isCaller = false;
 
 const video = document.getElementById("myVideo");
 const chatContainer = document.getElementById("chatContainer");
 const chatLog = document.getElementById("chatLog");
-const chatInput = document.getElementById("chatInput");
+const textField = document.getElementById("textField");
 
-// Send chat message function
-function sendChatMessage() {
-    const message = chatInput.value.trim();
-    if (message && dataChannel && dataChannel.readyState === "open") {
-        dataChannel.send(message);
-        const msgElem = document.createElement("div");
-        msgElem.textContent = "You: " + message;
-        chatLog.appendChild(msgElem);
-        chatInput.value = "";
-    }
-}
-
-// Chat input event listener
-chatInput.addEventListener("keydown", (e) => {
+// TextField
+textField.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-        sendChatMessage();
+        const message = textField.value.trim();
+        if (message && dataChannel && dataChannel.readyState === "open") {
+            dataChannel.send(message);
+            const msgElem = document.createElement("div");
+            msgElem.textContent = "You: " + message;
+            chatLog.appendChild(msgElem);
+            textField.value = "";
+        }
     }
 });
 
 // Initialize signaling and WebRTC connection
 function initSignaling() {
-    const webSocket = new WebSocket("ws://localhost:3000");
+    // RTC Peer Connection
+    rtcPeerConnection = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+    });
 
+    // Add Video Track 
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach((track) => {
+            rtcPeerConnection.addTrack(track, video.srcObject);
+        });
+    }
+
+    // On ICE Candidate
+    rtcPeerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            webSocket.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
+        }
+    };
+
+    // On Track
+    rtcPeerConnection.ontrack = (event) => {
+        if (!event.streams || !event.streams[0]) {
+            console.warn("⚠️ No remote stream received");
+            return;
+        }
+        sidebar.style.display = "flex";
+        opponentVideo.srcObject = event.streams[0];
+        sidebar.style.display = "flex";  // Moved here to ensure display before showing video
+        opponentVideo.play();
+    };
+
+    const webSocket = new WebSocket("ws://localhost:3000");
     webSocket.addEventListener("open", async () => {
         console.log("🛰 WebSocket connected");
-
-        rtcPeerConnection = new RTCPeerConnection({
-            iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-        });
-
-        // Add local tracks to connection immediately after rtcPeerConnection creation
-        if (video.srcObject) {
-            video.srcObject.getTracks().forEach((track) => {
-                rtcPeerConnection.addTrack(track, video.srcObject);
-            });
-        }
-
-        rtcPeerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-                webSocket.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
-            }
-        };
-
-        if (isCaller) {
-            dataChannel = rtcPeerConnection.createDataChannel("chat");
-            setupDataChannel();
-        } else {
-            rtcPeerConnection.ondatachannel = (event) => {
-                dataChannel = event.channel;
-                setupDataChannel();
-            };
-        }
-
-        rtcPeerConnection.ontrack = (event) => {
-            if (!event.streams || !event.streams[0]) {
-                console.warn("⚠️ No remote stream received");
-                return;
-            }
-            opponentVideo.srcObject = event.streams[0];
-            sidebar.style.display = "flex";  // Moved here to ensure display before showing video
-            opponentVideo.style.display = "block";
-            opponentVideo.play();
-        };
-
-        if (isCaller) {
-            const offer = await rtcPeerConnection.createOffer();
-            await rtcPeerConnection.setLocalDescription(offer);
-            webSocket.send(JSON.stringify(rtcPeerConnection.localDescription));
-        }
+        
     });
 
     webSocket.addEventListener("message", async (event) => {
@@ -101,12 +80,23 @@ function initSignaling() {
             console.log("🕓 Waiting for another user...");
         }
         if (data.type === "ready") {
-            console.log("ready");
             console.log(data.role);
-            isCaller = data.role === "caller";
+            console.log("ready");
+            const offer = await rtcPeerConnection.createOffer();
+            await rtcPeerConnection.setLocalDescription(offer);
+            webSocket.send(JSON.stringify(rtcPeerConnection.localDescription));
+
+            if (data.role === "caller") {
+                dataChannel = rtcPeerConnection.createDataChannel("chat");
+                setupDataChannel();
+            } else {
+                rtcPeerConnection.ondatachannel = (event) => {
+                    dataChannel = event.channel;
+                    setupDataChannel();
+                };
+            }
 
             sidebar.style.display = "flex";
-            opponentVideo.style.display = "none"; // wait for remote track before showing
         }
         if (data.type === "offer") {
             console.log("📥 offer received");
@@ -143,8 +133,8 @@ function setupDataChannel() {
 }
 
 // Button
-const signalButton = document.getElementById("signalButton");
-signalButton.addEventListener("click", () => {
+const matchmakeButton = document.getElementById("matchmakeButton");
+matchmakeButton.addEventListener("click", () => {
     initSignaling();
 });
 
