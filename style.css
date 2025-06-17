@@ -11,7 +11,6 @@ body video {
     object-fit: fit;
     border: 2px solid white;
     background: black;
-    display: none;
 }
 
 #myVideo {
@@ -26,7 +25,7 @@ body video {
 }
 
 #opponentVideo {
-    display: block;
+    display: none;
 }
 #chatLog {
     display: block;
