@@ -1,14 +1,3 @@
-#disconnectButton {
-  width: 100%;
-  margin-top: 4px;
-  height: 40px;
-  font-size: 16px;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
 body {
     display: flex;
     margin: 0;
@@ -29,31 +18,7 @@ body video {
     transform: scaleX(-1);
 }
 
-#sidebar {
-    flex: 1;
-    display: none;
-    flex-direction: column;
-    gap: 2px;
-}
-
-#chatContainer {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-#chatLog {
-    display: block;
-    flex: 1;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-#textField {
-    width: 100%;
-}
-
-#matchmakeButton  {
+#connectButton  {
     width: 200px;
     height: 50px;
     font-size: 16px;
@@ -64,17 +29,52 @@ body video {
     cursor: pointer;
 }
 
+#sidebar {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#opponentVideo {
+    display: block;
+}
+
+#chatContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+#chatLog {
+    display: block;
+    flex: 1;
+    max-height: 200px;
+    overflow-y: auto;
+}
+#textField {
+    width: 100%;
+}
+#disconnectButton {
+  width: 100%;
+  margin-top: 4px;
+  height: 40px;
+  font-size: 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 #loadingSpinner {
   width: 40px;
   height: 40px;
   margin: 20px auto;
 }
-
 .spinner-icon {
   display: inline-block;
   animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -86,15 +86,10 @@ body video {
   margin: 4px;
   border-radius: 5px;
 }
-
 .opponent-message {
   text-align: left;
   background-color: #f1f0f0;
   padding: 5px;
   margin: 4px;
   border-radius: 5px;
-}
-
-#opponentVideo {
-    display: block;
 }

@@ -172,7 +172,7 @@ function setupDataChannel() {
                     webSocket = null;
                 }
                 sidebar.style.display = "none";
-                matchmakeButton.style.display = "block";
+                connectButton.style.display = "block";
                 return;
             }
         } catch {
@@ -191,10 +191,10 @@ function setupDataChannel() {
 }
 
 // Button
-const matchmakeButton = document.getElementById("matchmakeButton");
+const connectButton = document.getElementById("connectButton");
 const loadingSpinner = document.getElementById("loadingSpinner");
-matchmakeButton.addEventListener("click", () => {
-    matchmakeButton.style.display = "none";
+connectButton.addEventListener("click", () => {
+    connectButton.style.display = "none";
     loadingSpinner.style.display = "block";
     initSignaling();
 });
@@ -206,7 +206,7 @@ disconnectButton.addEventListener("click", () => {
         dataChannel.send(JSON.stringify({ type: "leave" }));
     }
     sidebar.style.display = "none";
-    matchmakeButton.style.display = "block";
+    connectButton.style.display = "block";
     if (rtcPeerConnection) {
         rtcPeerConnection.close();
         rtcPeerConnection = null;
@@ -230,3 +230,20 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .catch((err) => {
         console.error("Video Error:", err);
     });
+
+// Assuming chatLog and message appending occurs somewhere in pixi.js or other scripts,
+// here is an example snippet to limit chatLog messages to 50:
+
+// Example function to add message:
+function addMessage(msgText) {
+    const chatLog = document.getElementById('chatLog');
+    const msgElem = document.createElement('div');
+    msgElem.textContent = msgText;
+    chatLog.appendChild(msgElem);
+    msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+
+    // 上限を超えたら最も古いログを削除
+    while (chatLog.childNodes.length > 50) {
+        chatLog.removeChild(chatLog.firstChild);
+    }
+}

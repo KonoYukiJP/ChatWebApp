@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.0.1/pixi.min.js"></script>
@@ -17,36 +17,19 @@
         <!-- Chat -->
         <div id="chatContainer">
             <div id="chatLog"></div>
-            <input type="text" id="textField" placeholder="Type a message...">
+            <input type="text" id="textField" placeholder="Chat...">
         </div>
 
         <!-- Disconnect Button -->>
-        <button id="disconnectButton">退出</button>
+        <button id="disconnectButton">Disconnect</button>
     </div>
 
-    <button id="matchmakeButton">Start Signaling</button>
+    <button id="connectButton">Start Signaling</button>
     <div id="loadingSpinner" style="display: none;">
         <span class="spinner-icon">🔄</span>
         <span class="spinner-text">Connecting...</span>
     </div>
-    <script src="pixi.js"></script>
-    <script>
-        // Assuming chatLog and message appending occurs somewhere in pixi.js or other scripts,
-        // here is an example snippet to limit chatLog messages to 50:
-
-        // Example function to add message:
-        function addMessage(msgText) {
-            const chatLog = document.getElementById('chatLog');
-            const msgElem = document.createElement('div');
-            msgElem.textContent = msgText;
-            chatLog.appendChild(msgElem);
-            msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
-
-            // 上限を超えたら最も古いログを削除
-            while (chatLog.childNodes.length > 50) {
-                chatLog.removeChild(chatLog.firstChild);
-            }
-        }
-    </script>
+    <script src="localizable.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
