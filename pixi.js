@@ -200,8 +200,8 @@ matchmakeButton.addEventListener("click", () => {
 });
 
 // 退出ボタンの処理
-const leaveButton = document.getElementById("leaveButton");
-leaveButton.addEventListener("click", () => {
+const disconnectButton = document.getElementById("disconnectButton");
+disconnectButton.addEventListener("click", () => {
     if (dataChannel && dataChannel.readyState === "open") {
         dataChannel.send(JSON.stringify({ type: "leave" }));
     }

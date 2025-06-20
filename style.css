@@ -1,4 +1,4 @@
-#leaveButton {
+#disconnectButton {
   width: 100%;
   margin-top: 4px;
   height: 40px;
@@ -39,6 +39,7 @@ body video {
 #chatContainer {
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 #chatLog {

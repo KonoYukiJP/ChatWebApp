@@ -1,35 +1,27 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.0.1/pixi.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <style>
-        #chatContainer {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        #chatLog {
-            flex: 1;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-    </style>
 </head>
 <body>
-    <!-- 自分の映像 -->
+    <!-- My Video -->
     <video id="myVideo" muted playsinline></video>
-    <div id="sidebar" style="display: none;">
-        <!-- 相手の映像 -->
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <!-- Opponent Video -->
         <video id="opponentVideo" playsinline></video>
 
-        <!-- チャットUI -->
+        <!-- Chat -->
         <div id="chatContainer">
-          <div id="chatLog"></div>
-          <input type="text" id="textField" placeholder="Type a message...">
-          <button id="leaveButton">退出</button>
+            <div id="chatLog"></div>
+            <input type="text" id="textField" placeholder="Type a message...">
         </div>
+
+        <!-- Disconnect Button -->>
+        <button id="disconnectButton">退出</button>
     </div>
 
     <button id="matchmakeButton">Start Signaling</button>
