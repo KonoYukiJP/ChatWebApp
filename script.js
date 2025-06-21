@@ -1,27 +1,16 @@
-// pixi.js
+// script.js
 
-// Elements
+// My Video
+const video = document.getElementById("myVideo");
+// Sidebar
 const sidebar = document.getElementById("sidebar");
+// Opponent Video
 const opponentVideo = document.getElementById("opponentVideo");
-
+// Chat
+const log = document.getElementById("log");
+const textField = document.getElementById("textField");
 // WebRTC Peer Connection and Data Channel
 let dataChannel = null;
-
-const video = document.getElementById("myVideo");
-
-// Chat
-const textField = document.getElementById("textField");
-const chatLog = document.getElementById("chatLog");
-const chatContainer = document.getElementById("chatContainer");
-if (chatContainer) {
-    chatContainer.style.display = "flex";
-    chatContainer.style.flexDirection = "column";
-}
-if (chatLog) {
-    chatLog.style.flex = "1";
-    chatLog.style.maxHeight = "200px";
-    chatLog.style.overflowY = "auto";
-}
 
 textField.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -31,11 +20,11 @@ textField.addEventListener("keydown", (e) => {
             const msgElem = document.createElement("div");
             msgElem.textContent = message;
             msgElem.classList.add("my-message");
-            chatLog.appendChild(msgElem);
+            log.appendChild(msgElem);
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
             // 上限を超えたら最も古いログを削除
-            while (chatLog.childNodes.length > 50) {
-                chatLog.removeChild(chatLog.firstChild);
+            while (log.childNodes.length > 50) {
+                log.removeChild(log.firstChild);
             }
             textField.value = "";
         }
@@ -46,8 +35,8 @@ textField.addEventListener("keydown", (e) => {
 let rtcPeerConnection = null;
 let webSocket = null;
 
-// Initialize signaling and WebRTC connection
-function initSignaling() {
+// Connect
+function connect() {
     // RTC Peer Connection
     rtcPeerConnection = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
@@ -81,12 +70,14 @@ function initSignaling() {
         loadingSpinner.style.display = "none";
     };
 
+    // Websocket
     webSocket = new WebSocket("ws://localhost:3000");
     webSocket.addEventListener("open", async () => {
         console.log("🛰 WebSocket connected");
         
     });
 
+    // Message
     webSocket.addEventListener("message", async (event) => {
         let rawData;
         if (event.data instanceof Blob) {
@@ -180,26 +171,26 @@ function setupDataChannel() {
             const msgElem = document.createElement("div");
             msgElem.textContent = message + " - Opponent";
             msgElem.classList.add("opponent-message");
-            chatLog.appendChild(msgElem);
+            log.appendChild(msgElem);
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
             // 上限を超えたら最も古いログを削除
-            while (chatLog.childNodes.length > 50) {
-                chatLog.removeChild(chatLog.firstChild);
+            while (log.childNodes.length > 50) {
+                log.removeChild(log.firstChild);
             }
         }
     };
 }
 
-// Button
+// Connect Button
 const connectButton = document.getElementById("connectButton");
 const loadingSpinner = document.getElementById("loadingSpinner");
 connectButton.addEventListener("click", () => {
     connectButton.style.display = "none";
     loadingSpinner.style.display = "block";
-    initSignaling();
+    connect();
 });
 
-// 退出ボタンの処理
+// Disconnect Button
 const disconnectButton = document.getElementById("disconnectButton");
 disconnectButton.addEventListener("click", () => {
     if (dataChannel && dataChannel.readyState === "open") {
@@ -230,20 +221,3 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .catch((err) => {
         console.error("Video Error:", err);
     });
-
-// Assuming chatLog and message appending occurs somewhere in pixi.js or other scripts,
-// here is an example snippet to limit chatLog messages to 50:
-
-// Example function to add message:
-function addMessage(msgText) {
-    const chatLog = document.getElementById('chatLog');
-    const msgElem = document.createElement('div');
-    msgElem.textContent = msgText;
-    chatLog.appendChild(msgElem);
-    msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
-
-    // 上限を超えたら最も古いログを削除
-    while (chatLog.childNodes.length > 50) {
-        chatLog.removeChild(chatLog.firstChild);
-    }
-}

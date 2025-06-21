@@ -1,15 +1,20 @@
+/* style.css */
+
 body {
-    display: flex;
+    width: 100vw;
+    height: 100vh;
     margin: 0;
-    gap: 2px;
+    box-sizing: border-box;
     padding: 4px;
+    display: flex;
+    gap: 2px;
     overflow: hidden;
 }
 
 body video {
-    width: 100%;
-    object-fit: fit;
-    border: 2px solid white;
+    box-sizing: border-box;
+    border: 4px solid #808080;
+    object-fit: fill;
     background: black;
 }
 
@@ -35,17 +40,17 @@ body video {
     flex-direction: column;
     gap: 2px;
 }
-
 #opponentVideo {
+    width: 100%;
     display: block;
 }
 
-#chatContainer {
+#chat {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
-#chatLog {
+#log {
     display: block;
     flex: 1;
     max-height: 200px;

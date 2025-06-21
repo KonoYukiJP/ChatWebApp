@@ -1,3 +1,5 @@
+// localizable.js
+
 document.addEventListener("DOMContentLoaded", () => {
     const language = navigator.language.startsWith('ja') ? 'ja' : 'en';
     document.documentElement.lang = language;
