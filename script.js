@@ -12,6 +12,7 @@ const textField = document.getElementById("textField");
 // WebRTC Peer Connection and Data Channel
 let dataChannel = null;
 
+// TextField Keydown
 textField.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         const message = textField.value.trim();
@@ -62,18 +63,16 @@ function connect() {
             console.warn("⚠️ No remote stream received");
             return;
         }
-        sidebar.style.display = "flex";
-        opponentVideo.srcObject = event.streams[0];
-        sidebar.style.display = "flex";  // Moved here to ensure display before showing video
-        opponentVideo.play();
-
         loadingSpinner.style.display = "none";
+        opponentVideo.srcObject = event.streams[0];
+        opponentVideo.play();
+        sidebar.style.display = "flex";  // Moved here to ensure display before showing video
     };
 
     // Websocket
     webSocket = new WebSocket("ws://localhost:3000");
     webSocket.addEventListener("open", async () => {
-        console.log("🛰 WebSocket connected");
+        console.log("WebSocket connected");
         
     });
 
@@ -106,8 +105,6 @@ function connect() {
                     setupDataChannel();
                 };
             }
-
-            sidebar.style.display = "flex";
         }
         if (data.type === "offer") {
             console.log("📥 offer received");
