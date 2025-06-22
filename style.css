@@ -7,13 +7,13 @@ body {
     box-sizing: border-box;
     padding: 4px;
     display: flex;
-    gap: 2px;
+    gap: 4px;
     overflow: hidden;
 }
-
 body video {
     box-sizing: border-box;
     border: 4px solid #808080;
+    border-radius: 8px;
     object-fit: fill;
     background: black;
 }
@@ -23,80 +23,84 @@ body video {
     transform: scaleX(-1);
 }
 
-#connectButton  {
-    width: 200px;
-    height: 50px;
-    font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-#sidebar {
+.sidebar {
     flex: 1;
     display: none;
     flex-direction: column;
-    gap: 2px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
 }
+
+#connectButton  {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    color: white;
+    background-color: #4CAF50;
+    cursor: pointer;
+}
+#disconnectButton {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    color: white;
+    background-color: #f44336;
+    cursor: pointer;
+}
+#connectingIcon {
+    display: inline-block;
+    width: 44px;
+    height: 44px;
+    border: 4px solid #ccc;
+    border-top: 4px solid #333;
+    border-radius: 50%;
+    animation: spin 4s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 #opponentVideo {
     width: 100%;
     display: block;
 }
-
-#chat {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
 #log {
-    display: block;
+    width: 100%;
     flex: 1;
-    max-height: 200px;
     overflow-y: auto;
 }
 #textField {
     width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    padding-left: 8px;
+    font-size: 16px;
+    background-color: #f0f0f0;
 }
-.my-message {
-  text-align: right;
-  background-color: #dcf8c6;
-  padding: 5px;
-  margin: 4px;
-  border-radius: 5px;
+.myMessage {
+    text-align: right;
+    background-color: #dcf8c6;
+    margin: 4px;
+    padding: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+    border-radius: 8px;
 }
-.opponent-message {
-  text-align: left;
-  background-color: #f1f0f0;
-  padding: 5px;
-  margin: 4px;
-  border-radius: 5px;
+.opponentMessage {
+    text-align: left;
+    background-color: #f1f0f0;
+    margin: 4px;
+    padding: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+    border-radius: 8px;
 }
-#disconnectButton {
-  width: 100%;
-  margin-top: 4px;
-  height: 40px;
-  font-size: 16px;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-#loadingSpinner {
-  width: 40px;
-  height: 40px;
-  margin: 20px auto;
-}
-.spinner-icon {
-  display: inline-block;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 

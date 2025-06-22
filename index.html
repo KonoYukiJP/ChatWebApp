@@ -1,5 +1,3 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,26 +9,30 @@
     <!-- My Video -->
     <video id="myVideo" muted playsinline></video>
 
-    <!-- Sidebar -->
-    <div id="sidebar">
+    <!-- Home View -->
+    <div id="homeView" class="sidebar">
+        <button id="connectButton">Start Signaling</button>
+    </div>
+
+    <!-- Connecting View -->
+    <div id="connectingView" class="sidebar">
+        <span id="connectingIcon"></span>
+        <span id="connectingText"></span>
+    </div>
+
+    <!-- Channel View -->
+    <div id="channelView" class="sidebar">
         <!-- Opponent Video -->
         <video id="opponentVideo" playsinline></video>
 
         <!-- Chat -->
-        <div id="chat">
-            <div id="log"></div>
-            <input type="text" id="textField" placeholder="Chat...">
-        </div>
+        <div id="log"></div>
+        <input type="text" id="textField">
 
-        <!-- Disconnect Button -->>
+        <!-- Disconnect Button -->
         <button id="disconnectButton">Disconnect</button>
     </div>
-
-    <button id="connectButton">Start Signaling</button>
-    <div id="loadingSpinner" style="display: none;">
-        <span class="spinner-icon">🔄</span>
-        <span class="spinner-text">Connecting...</span>
-    </div>
+    
     <script src="localizable.js"></script>
     <script src="script.js"></script>
 </body>

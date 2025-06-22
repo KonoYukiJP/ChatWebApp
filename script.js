@@ -1,26 +1,33 @@
 // script.js
 
+// Home View
+const homeView = document.getElementById("homeView");
+homeView.style.display = "flex";
+// Connecting View
+const connectingView = document.getElementById("connectingView");
+// Channel View
+const channelView = document.getElementById("channelView");
+
 // My Video
 const video = document.getElementById("myVideo");
-// Sidebar
-const sidebar = document.getElementById("sidebar");
 // Opponent Video
 const opponentVideo = document.getElementById("opponentVideo");
+
 // Chat
 const log = document.getElementById("log");
 const textField = document.getElementById("textField");
 // WebRTC Peer Connection and Data Channel
-let dataChannel = null;
+let chatDataChannel = null;
 
 // TextField Keydown
 textField.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         const message = textField.value.trim();
-        if (message && dataChannel && dataChannel.readyState === "open") {
-            dataChannel.send(message);
+        if (message && chatDataChannel && chatDataChannel.readyState === "open") {
+            chatDataChannel.send(JSON.stringify({ type: "message", text: message }));
             const msgElem = document.createElement("div");
             msgElem.textContent = message;
-            msgElem.classList.add("my-message");
+            msgElem.classList.add("myMessage");
             log.appendChild(msgElem);
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
             // 上限を超えたら最も古いログを削除
@@ -63,10 +70,10 @@ function connect() {
             console.warn("⚠️ No remote stream received");
             return;
         }
-        loadingSpinner.style.display = "none";
+        connectingView.style.display = "none";
         opponentVideo.srcObject = event.streams[0];
         opponentVideo.play();
-        sidebar.style.display = "flex";  // Moved here to ensure display before showing video
+        channelView.style.display = "flex";  // Moved here to ensure display before showing video
     };
 
     // Websocket
@@ -84,27 +91,23 @@ function connect() {
         } else {
             rawData = event.data;
         }
-
         const data = JSON.parse(rawData);
 
         if (data.type === "wait") {
             console.log("🕓 Waiting for another user...");
         }
-        if (data.type === "ready") {
-            console.log(data.role);
-            console.log("ready");
-            if (data.role === "caller") {
-                dataChannel = rtcPeerConnection.createDataChannel("chat");
+        if (data.type === "caller") {
+            chatDataChannel = rtcPeerConnection.createDataChannel("chat");
+            setupDataChannel();
+            const offer = await rtcPeerConnection.createOffer();
+            await rtcPeerConnection.setLocalDescription(offer);
+            webSocket.send(JSON.stringify(rtcPeerConnection.localDescription));
+        } 
+        if (data.type === "callee") {
+            rtcPeerConnection.ondatachannel = (event) => {
+                chatDataChannel = event.channel;
                 setupDataChannel();
-                const offer = await rtcPeerConnection.createOffer();
-                await rtcPeerConnection.setLocalDescription(offer);
-                webSocket.send(JSON.stringify(rtcPeerConnection.localDescription));
-            } else {
-                rtcPeerConnection.ondatachannel = (event) => {
-                    dataChannel = event.channel;
-                    setupDataChannel();
-                };
-            }
+            };
         }
         if (data.type === "offer") {
             console.log("📥 offer received");
@@ -129,72 +132,55 @@ function connect() {
     });
 }
 
-// Setup data channel event handlers
-function addMessage(msgText) {
-    const chatLog = document.getElementById('chatLog');
-    const msgElem = document.createElement('div');
-    msgElem.textContent = msgText;
-    chatLog.appendChild(msgElem);
-    msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
-    // 上限を超えたら最も古いログを削除
-    while (chatLog.childNodes.length > 50) {
-        chatLog.removeChild(chatLog.firstChild);
-    }
-}
-
 function setupDataChannel() {
-    if (!dataChannel) return;
+    if (!chatDataChannel) return;
 
-    dataChannel.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            if (data.type === "leave") {
-                opponentVideo.srcObject = null;
-
-                if (rtcPeerConnection) {
-                    rtcPeerConnection.close();
-                    rtcPeerConnection = null;
-                }
-                if (webSocket) {
-                    webSocket.close();
-                    webSocket = null;
-                }
-                sidebar.style.display = "none";
-                connectButton.style.display = "block";
-                return;
-            }
-        } catch {
-            const message = event.data;
-            const msgElem = document.createElement("div");
-            msgElem.textContent = message + " - Opponent";
-            msgElem.classList.add("opponent-message");
-            log.appendChild(msgElem);
-            msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
-            // 上限を超えたら最も古いログを削除
-            while (log.childNodes.length > 50) {
+    chatDataChannel.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "message") {
+            const messageElement = document.createElement("div");
+            messageElement.textContent = data.text;
+            messageElement.classList.add("opponentMessage");
+            log.appendChild(messageElement);
+            messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
+            while (log.childNodes.length > 64) {
                 log.removeChild(log.firstChild);
             }
+        } else if (data.type === "leave") {
+            opponentVideo.srcObject = null;
+
+            if (rtcPeerConnection) {
+                rtcPeerConnection.close();
+                rtcPeerConnection = null;
+            }
+            if (webSocket) {
+                webSocket.close();
+                webSocket = null;
+            }
+            channelView.style.display = "none";
+            homeView.style.display = "block";
+            return;
         }
     };
 }
 
 // Connect Button
 const connectButton = document.getElementById("connectButton");
-const loadingSpinner = document.getElementById("loadingSpinner");
+
 connectButton.addEventListener("click", () => {
-    connectButton.style.display = "none";
-    loadingSpinner.style.display = "block";
+    homeView.style.display = "none";
+    connectingView.style.display = "flex";
     connect();
 });
 
 // Disconnect Button
 const disconnectButton = document.getElementById("disconnectButton");
 disconnectButton.addEventListener("click", () => {
-    if (dataChannel && dataChannel.readyState === "open") {
-        dataChannel.send(JSON.stringify({ type: "leave" }));
+    if (chatDataChannel && chatDataChannel.readyState === "open") {
+        chatDataChannel.send(JSON.stringify({ type: "leave" }));
     }
-    sidebar.style.display = "none";
-    connectButton.style.display = "block";
+    channelView.style.display = "none";
+    homeView.style.display = "block";
     if (rtcPeerConnection) {
         rtcPeerConnection.close();
         rtcPeerConnection = null;

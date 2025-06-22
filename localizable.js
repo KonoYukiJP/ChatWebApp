@@ -8,12 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
         en: {
             connect: "Connect",
             disconnect: "Disconnect",
-            connecting: "Connecting..."
+            connecting: "Connecting...",
+            placeholder: "Chat..."
         },
         ja: {
             connect: "接続",
             disconnect: "切断",
-            connecting: "接続中..."
+            connecting: "接続中...",
+            placeholder: "チャット..."
         }
     };
     const localized = localizable[language];
@@ -24,6 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const disconnectButton = document.getElementById("disconnectButton");
     if (disconnectButton) disconnectButton.textContent = localized.disconnect;
 
-    const spinnerText = document.querySelector(".spinner-text");
+    const spinnerText = document.getElementById("connectingText");
     if (spinnerText) spinnerText.textContent = localized.connecting;
+
+    const textField = document.getElementById("textField");
+    if (textField) textField.placeholder = localized.placeholder;
 });
