@@ -83,11 +83,12 @@ body video {
     outline: none;
     padding-left: 8px;
     font-size: 16px;
-    background-color: #f0f0f0;
+    background-color: rgba(240, 240, 240);
 }
 .myMessage {
     text-align: right;
-    background-color: #dcf8c6;
+    color: black;
+    background-color: rgba(215, 215, 215);
     margin: 4px;
     padding: 4px;
     padding-right: 8px;
@@ -96,11 +97,11 @@ body video {
 }
 .opponentMessage {
     text-align: left;
-    background-color: #f1f0f0;
+    color: black;
+    background-color: rgb(240, 240, 240);
     margin: 4px;
     padding: 4px;
     padding-right: 8px;
     padding-left: 8px;
     border-radius: 8px;
 }
-
