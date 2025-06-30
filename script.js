@@ -93,14 +93,12 @@ function connect() {
 
     // On Track
     rtcPeerConnection.ontrack = (event) => {
-        if (!event.streams || !event.streams[0]) {
-            console.warn("No remote stream received");
-            return;
+        if (!opponentVideo.srcObject) {
+            opponentVideo.srcObject = event.streams[0];
+            opponentVideo.play();
+            connectingView.style.display = "none";
+            channelView.style.display = "flex";
         }
-        opponentVideo.srcObject = event.streams[0];
-        opponentVideo.play();
-        connectingView.style.display = "none";
-        channelView.style.display = "flex";
     };
 
     // Websocket
@@ -150,6 +148,9 @@ function connect() {
             console.log("ICE candidate received.");
             await rtcPeerConnection.addIceCandidate(data.candidate);
         }
+        if (data.type === "disconnect") {
+            disconnect()
+        }
     });
 }
 
@@ -187,3 +188,4 @@ function disconnect() {
     webSocket.close();
     webSocket = null;
 }
+
