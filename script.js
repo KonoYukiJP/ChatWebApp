@@ -2,6 +2,15 @@
 
 // My Video
 const video = document.getElementById("myVideo");
+// User Media
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+        video.srcObject = stream;
+        video.play();
+    })
+    .catch((err) => {
+        console.error("Video Error:", err);
+    });
 video.onpause = () => console.warn("Video Paused");
 video.onended = () => console.warn("Video Ended");
 video.onerror = (e) => console.error("Video Error", e);
@@ -52,26 +61,6 @@ disconnectButton.addEventListener("click", () => {
     disconnect()
 });
 
-// Chat Data Channel
-let chatDataChannel = null;
-function createChatDataChannel(dataChannel) {
-    chatDataChannel = dataChannel
-
-    // Opponent Message
-    chatDataChannel.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "message") {
-            const messageElement = document.createElement("div");
-            messageElement.classList.add("opponentMessage");
-            messageElement.textContent = data.text;
-            log.appendChild(messageElement);
-            messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
-        } else if (data.type === "disconnect") {
-            disconnect()
-        }
-    };
-}
-
 // RTC Peer Connection
 let rtcPeerConnection = null;
 // WebSocket
@@ -80,6 +69,10 @@ let webSocket = null;
 function connect() {
     homeView.style.display = "none";
     connectingView.style.display = "flex";
+
+    if (window.statusText) {
+        window.statusText.textContent = window.localized.connecting;
+    }
 
     // RTC Peer Connection
     rtcPeerConnection = new RTCPeerConnection({
@@ -129,14 +122,15 @@ function connect() {
 
         if (data.type === "wait") {
             console.log("Waiting for another user.");
+            if (window.statusText) window.statusText.textContent = window.localized.waiting;
         }
-        if (data.type === "caller") {
+        if (data.type === "offerer") {
             createChatDataChannel(rtcPeerConnection.createDataChannel("chat"));
             const offer = await rtcPeerConnection.createOffer();
             await rtcPeerConnection.setLocalDescription(offer);
             webSocket.send(JSON.stringify(rtcPeerConnection.localDescription));
         } 
-        if (data.type === "callee") {
+        if (data.type === "answerer") {
             rtcPeerConnection.ondatachannel = (event) => {
                 createChatDataChannel(event.channel);
             };
@@ -159,6 +153,26 @@ function connect() {
     });
 }
 
+// Chat Data Channel
+let chatDataChannel = null;
+function createChatDataChannel(dataChannel) {
+    chatDataChannel = dataChannel
+
+    // Opponent Message
+    chatDataChannel.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "message") {
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("opponentMessage");
+            messageElement.textContent = data.text;
+            log.appendChild(messageElement);
+            messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
+        } else if (data.type === "disconnect") {
+            disconnect()
+        }
+    };
+}
+
 // Disconnect
 function disconnect() {
     opponentVideo.srcObject = null;
@@ -173,13 +187,3 @@ function disconnect() {
     webSocket.close();
     webSocket = null;
 }
-
-// User Media
-navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then((stream) => {
-        video.srcObject = stream;
-        video.play();
-    })
-    .catch((err) => {
-        console.error("Video Error:", err);
-    });
