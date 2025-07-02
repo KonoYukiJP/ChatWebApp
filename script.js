@@ -11,9 +11,6 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .catch((err) => {
         console.error("Video Error:", err);
     });
-video.onpause = () => console.warn("Video Paused");
-video.onended = () => console.warn("Video Ended");
-video.onerror = (e) => console.error("Video Error", e);
 video.onloadedmetadata = () => {
     homeView.style.display = "flex";
 };
