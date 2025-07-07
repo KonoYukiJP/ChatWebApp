@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const connectButton = document.getElementById("connectButton");
     if (connectButton) connectButton.textContent = localized.connect;
 
-    const disconnectButton = document.getElementById("disconnectButton");
-    if (disconnectButton) disconnectButton.textContent = localized.disconnect;
+    // const disconnectButton = document.getElementById("disconnectButton");
+    // if (disconnectButton) disconnectButton.textContent = localized.disconnect;
 
     window.statusText = document.getElementById("statusText");
     if (window.statusText) window.statusText.textContent = localized.connecting;

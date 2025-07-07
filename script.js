@@ -2,29 +2,33 @@
 
 // My Video
 const video = document.getElementById("myVideo");
+let isMuted = false;
+let localAudioTrack = null;
 // User Media
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((stream) => {
         video.srcObject = stream;
         video.play();
+        localAudioTrack = stream.getAudioTracks()[0];
     })
     .catch((err) => {
         console.error("Video Error:", err);
     });
 video.onloadedmetadata = () => {
-    homeView.style.display = "flex";
+    connectButton.style.display = "block";
 };
 
-// Home View
-const homeView = document.getElementById("homeView");
+// Sidebar
+const sidebar = document.getElementById("sidebar");
+const loadingSpinner = document.getElementById("loadingSpinner");
+const statusText = document.getElementById("statusText");
+
 // Connect Button
 const connectButton = document.getElementById("connectButton");
 connectButton.addEventListener("click", () => {
     connect();
 });
 
-// Connecting View
-const connectingView = document.getElementById("connectingView");
 
 // Channel View
 const channelView = document.getElementById("channelView");
@@ -57,6 +61,17 @@ disconnectButton.addEventListener("click", () => {
     }
     disconnect()
 });
+const micButton = document.getElementById("micButton");
+micButton.addEventListener("click", () => {
+    if (!localAudioTrack) return;
+    isMuted = !isMuted;
+    localAudioTrack.enabled = !isMuted;
+
+    const icon = micButton.querySelector(".material-symbols-rounded");
+    if (icon) {
+        icon.textContent = isMuted ? "mic_off" : "mic";
+    }
+});
 
 // RTC Peer Connection
 let rtcPeerConnection = null;
@@ -64,8 +79,9 @@ let rtcPeerConnection = null;
 let webSocket = null;
 // Connect
 function connect() {
-    homeView.style.display = "none";
-    connectingView.style.display = "flex";
+    connectButton.style.display = "none";
+    loadingSpinner.style.display = "inline-block";
+    statusText.style.display = "block";
 
     if (window.statusText) {
         window.statusText.textContent = window.localized.connecting;
@@ -93,8 +109,12 @@ function connect() {
         if (!opponentVideo.srcObject) {
             opponentVideo.srcObject = event.streams[0];
             opponentVideo.play();
-            connectingView.style.display = "none";
-            channelView.style.display = "flex";
+            loadingSpinner.style.display = "none";
+            statusText.style.display = "none";
+
+            opponentVideo.style.display = "block";
+            log.style.display = "block";
+            textField.style.display = "block";
         }
     };
 
@@ -174,8 +194,10 @@ function createChatDataChannel(dataChannel) {
 // Disconnect
 function disconnect() {
     opponentVideo.srcObject = null;
-    channelView.style.display = "none";
-    homeView.style.display = "flex";
+    opponentVideo.style.display = "none";
+    log.style.display = "none";
+    textField.style.display = "none";
+    connectButton.style.display = "block";
     // Remove Log Child
     while (log.firstChild) {
         log.removeChild(log.firstChild);
@@ -185,4 +207,3 @@ function disconnect() {
     webSocket.close();
     webSocket = null;
 }
-

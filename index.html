@@ -3,34 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.0.1/pixi.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=call_end,mic,mic_off,videocam" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- My Video -->
     <video id="myVideo" muted playsinline></video>
 
-    <!-- Home View -->
-    <div id="homeView" class="sidebar">
+    <div id="sidebar">
+        <!-- Home View -->
         <button id="connectButton">Start Signaling</button>
-    </div>
 
-    <!-- Connecting View -->
-    <div id="connectingView" class="sidebar">
+        <!-- Connecting View -->
         <span id="loadingSpinner"></span>
         <span id="statusText"></span>
-    </div>
 
-    <!-- Channel View -->
-    <div id="channelView" class="sidebar">
-        <!-- Opponent Video -->
+        <!-- Channel View -->
         <video id="opponentVideo" playsinline></video>
-
-        <!-- Chat -->
         <div id="log"></div>
         <input type="text" id="textField">
 
-        <!-- Disconnect Button -->
-        <button id="disconnectButton">Disconnect</button>
+        <div id="toolbar">
+            <button id="micButton"><span class="material-symbols-rounded">mic_off</span></button>
+            <button id="videocamButton"><span class="material-symbols-rounded">videocam</span></button>
+            <!-- Disconnect Button -->
+            <button id="disconnectButton"><span class="material-symbols-rounded">call_end</span></button>
+        </div>
     </div>
     
     <script src="localizable.js"></script>
