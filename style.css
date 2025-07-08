@@ -46,20 +46,16 @@ button {
     border-radius: 44%;
     font-size: 16px;
     color: white;
+    background-color: #cccccc;
     cursor: pointer;
 }
 
-#connectButton {
-    display: none;
-    background-color: #4CAF50;
-}
-
 #toolbar {
-    display: flex;
+    display: none;
     gap: 8px;
 }
-#disconnectButton {
-    background-color: #f44336;
+#callButton {
+    background-color: #4CAF50;
 }
 #loadingSpinner {
     display: none;

@@ -1,43 +1,80 @@
 // script.js
 
-// My Video
-const video = document.getElementById("myVideo");
-let isMuted = false;
-let localAudioTrack = null;
-// User Media
-navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then((stream) => {
-        video.srcObject = stream;
-        video.play();
-        localAudioTrack = stream.getAudioTracks()[0];
-    })
-    .catch((err) => {
-        console.error("Video Error:", err);
-    });
-video.onloadedmetadata = () => {
-    connectButton.style.display = "block";
-};
+let isAudioMuted = false;
+let isVideoMuted = false;
+let selfAudioTrack = null;
+let selfVideoTrack = null;
+let isConnected = false;
 
-// Sidebar
-const sidebar = document.getElementById("sidebar");
+// RTC Peer Connection
+let rtcPeerConnection = null;
+let chatDataChannel = null;
+// WebSocket
+let webSocket = null;
+
+// Self Video
+const video = document.getElementById("myVideo");
+
+// Toolbar
+const toolbar = document.getElementById("toolbar");
+const micButton = document.getElementById("micButton");
+const videocamButton = document.getElementById("videocamButton")
+const callButton = document.getElementById("callButton");
+
+// Toolbar Icon
+const micButtonIcon = micButton.querySelector(".material-symbols-rounded");
+const videocamButtonIcon = videocamButton.querySelector(".material-symbols-rounded");
+const callButtonIcon = callButton.querySelector(".material-symbols-rounded");
+
+// Connecting
 const loadingSpinner = document.getElementById("loadingSpinner");
 const statusText = document.getElementById("statusText");
 
-// Connect Button
-const connectButton = document.getElementById("connectButton");
-connectButton.addEventListener("click", () => {
-    connect();
-});
-
-
-// Channel View
-const channelView = document.getElementById("channelView");
 // Opponent Video
 const opponentVideo = document.getElementById("opponentVideo");
-// Chat Log
+// Chat
 const log = document.getElementById("log");
-// Chat Text Field
 const textField = document.getElementById("textField");
+
+// Toolbar Event Listener
+micButton.addEventListener("click", () => {
+    if (!selfAudioTrack) return;
+    
+    if (isAudioMuted) {
+        isAudioMuted = false;
+        selfAudioTrack.enabled = true;
+        micButtonIcon.textContent = "mic";
+    } else {
+        isAudioMuted = true;
+        selfAudioTrack.enabled = false;
+        micButtonIcon.textContent = "mic_off";
+    }
+});
+videocamButton.addEventListener("click", () => {
+    if (!selfVideoTrack) return;
+
+    if (isVideoMuted) {
+        isVideoMuted = false;
+        selfVideoTrack.enabled = true;
+        videocamButtonIcon.textContent = "videocam";
+    } else {
+        isVideoMuted = true;
+        selfVideoTrack.enabled = false;
+        videocamButtonIcon.textContent = "videocam_off";
+    }
+})
+callButton.addEventListener("click", () => {
+    if (!isConnected) {
+        connect();
+    } else {
+        if (chatDataChannel && chatDataChannel.readyState === "open") {
+            chatDataChannel.send(JSON.stringify({ type: "disconnect" }));
+        }
+        disconnect()
+    }
+});
+
+// Chat Event Listener
 textField.addEventListener("keydown", (e) => {
     if (e.key !== "Enter" || e.isComposing) return;
 
@@ -53,33 +90,28 @@ textField.addEventListener("keydown", (e) => {
     messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
     textField.value = "";
 });
-// Disconnect Button
-const disconnectButton = document.getElementById("disconnectButton");
-disconnectButton.addEventListener("click", () => {
-    if (chatDataChannel && chatDataChannel.readyState === "open") {
-        chatDataChannel.send(JSON.stringify({ type: "disconnect" }));
-    }
-    disconnect()
-});
-const micButton = document.getElementById("micButton");
-micButton.addEventListener("click", () => {
-    if (!localAudioTrack) return;
-    isMuted = !isMuted;
-    localAudioTrack.enabled = !isMuted;
 
-    const icon = micButton.querySelector(".material-symbols-rounded");
-    if (icon) {
-        icon.textContent = isMuted ? "mic_off" : "mic";
-    }
-});
+// Get User Media
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+        selfAudioTrack = stream.getAudioTracks()[0];
+        micButtonIcon.textContent = "mic";
+        selfVideoTrack = stream.getVideoTracks()[0];
+        videocamButtonIcon.textContent = "videocam";
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+            toolbar.style.display = "flex";
+        };
+        video.play();
+    })
+    .catch((err) => {
+        console.error("Video Error:", err);
+    });
 
-// RTC Peer Connection
-let rtcPeerConnection = null;
-// WebSocket
-let webSocket = null;
 // Connect
 function connect() {
-    connectButton.style.display = "none";
+    callButtonIcon.textContent = "call_end";
+    callButton.style.backgroundColor = "#F44336";
     loadingSpinner.style.display = "inline-block";
     statusText.style.display = "block";
 
@@ -169,10 +201,33 @@ function connect() {
             disconnect()
         }
     });
+
+    isConnected = true
+}
+
+// Disconnect
+function disconnect() {
+    loadingSpinner.style.display = "none";
+    statusText.style.display = "none";
+    opponentVideo.srcObject = null;
+    opponentVideo.style.display = "none";
+    log.style.display = "none";
+    textField.style.display = "none";
+    callButtonIcon.textContent = "call";
+    callButton.style.backgroundColor = "#4CAF50";
+    // Remove Log Child
+    while (log.firstChild) {
+        log.removeChild(log.firstChild);
+    }
+    rtcPeerConnection.close();
+    rtcPeerConnection = null;
+    webSocket.close();
+    webSocket = null;
+
+    isConnected = false
 }
 
 // Chat Data Channel
-let chatDataChannel = null;
 function createChatDataChannel(dataChannel) {
     chatDataChannel = dataChannel
 
@@ -189,21 +244,4 @@ function createChatDataChannel(dataChannel) {
             disconnect()
         }
     };
-}
-
-// Disconnect
-function disconnect() {
-    opponentVideo.srcObject = null;
-    opponentVideo.style.display = "none";
-    log.style.display = "none";
-    textField.style.display = "none";
-    connectButton.style.display = "block";
-    // Remove Log Child
-    while (log.firstChild) {
-        log.removeChild(log.firstChild);
-    }
-    rtcPeerConnection.close();
-    rtcPeerConnection = null;
-    webSocket.close();
-    webSocket = null;
 }

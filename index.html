@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.0.1/pixi.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=call_end,mic,mic_off,videocam" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=call,call_end,mic,mic_off,videocam,videocam_off" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,8 +11,6 @@
     <video id="myVideo" muted playsinline></video>
 
     <div id="sidebar">
-        <!-- Home View -->
-        <button id="connectButton">Start Signaling</button>
 
         <!-- Connecting View -->
         <span id="loadingSpinner"></span>
@@ -25,9 +23,9 @@
 
         <div id="toolbar">
             <button id="micButton"><span class="material-symbols-rounded">mic_off</span></button>
-            <button id="videocamButton"><span class="material-symbols-rounded">videocam</span></button>
+            <button id="videocamButton"><span class="material-symbols-rounded">videocam_off</span></button>
             <!-- Disconnect Button -->
-            <button id="disconnectButton"><span class="material-symbols-rounded">call_end</span></button>
+            <button id="callButton"><span class="material-symbols-rounded">call</span></button>
         </div>
     </div>
     
