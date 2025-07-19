@@ -171,8 +171,7 @@ function connect() {
     };
 
     // Websocket
-    // webSocket = new WebSocket("wss://winesystem.servehttp.com/ws/");
-    webSocket = new WebSocket("ws://localhost:3000");
+    webSocket = new WebSocket("wss://winesystem.servehttp.com/ws/");
     webSocket.addEventListener("open", async () => {
         console.log("WebSocket Connected");
 
