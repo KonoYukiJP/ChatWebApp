@@ -3,31 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.0.1/pixi.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=call,call_end,mic,mic_off,videocam,videocam_off" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=call,call_end,chat,chat_bubble,mark_chat_unread,mic,mic_off,videocam,videocam_off" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <!-- My Video -->
-    <video id="myVideo" muted playsinline></video>
+    <main>
+        <div id="grid">
+            <video id="myVideo" muted playsinline></video>
+            <video id="opponentVideo" playsinline></video>
+            <!-- Connecting View -->
+            <div id="connectionStatus">
+                <span id="loadingSpinner"></span>
+                <span id="statusText"></span>
+            </div>
+        </div>
 
-    <div id="sidebar">
-        <!-- Connecting View -->
-        <span id="loadingSpinner"></span>
-        <span id="statusText"></span>
-
-        <!-- Channel View -->
-        <video id="opponentVideo" playsinline></video>
-        <div id="log"></div>
-        <input type="text" id="textField">
-
+        <!-- Tool -->
         <div id="toolbar">
+            <input id="code" type="text" maxlength="8">
             <button id="micButton"><span class="material-symbols-rounded">mic_off</span></button>
             <button id="videocamButton"><span class="material-symbols-rounded">videocam_off</span></button>
-            <!-- Disconnect Button -->
             <button id="callButton"><span class="material-symbols-rounded">call</span></button>
+            <button id="chatButton"><span class="material-symbols-rounded">chat_bubble</span></button>
         </div>
+    </main>
+
+    <!-- Chat -->
+    <div id="sidebar">
+        <div id="log"></div>
+        <input id="textField" type="text">
     </div>
-    
+
     <script src="localizable.js"></script>
     <script src="script.js"></script>
 </body>

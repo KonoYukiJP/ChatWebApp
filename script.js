@@ -5,6 +5,7 @@ let isVideoMuted = false;
 let selfAudioTrack = null;
 let selfVideoTrack = null;
 let isConnected = false;
+let isChatHidden = true;
 
 // RTC Peer Connection
 let rtcPeerConnection = null;
@@ -12,23 +13,28 @@ let chatDataChannel = null;
 // WebSocket
 let webSocket = null;
 
-// Self Video
-const video = document.getElementById("myVideo");
+// My Video
+const myVideo = document.getElementById("myVideo");
 
 // Toolbar
+const codeTextField = document.getElementById("code")
 const toolbar = document.getElementById("toolbar");
 const micButton = document.getElementById("micButton");
 const videocamButton = document.getElementById("videocamButton")
 const callButton = document.getElementById("callButton");
+const chatButton = document.getElementById("chatButton");
 
 // Toolbar Icon
 const micButtonIcon = micButton.querySelector(".material-symbols-rounded");
 const videocamButtonIcon = videocamButton.querySelector(".material-symbols-rounded");
 const callButtonIcon = callButton.querySelector(".material-symbols-rounded");
+const chatButtonIcon = chatButton.querySelector(".material-symbols-rounded");
+
+// Sidebar
+const sidebar = document.getElementById("sidebar");
 
 // Connecting
-const loadingSpinner = document.getElementById("loadingSpinner");
-const statusText = document.getElementById("statusText");
+const connectionStatus = document.getElementById("connectionStatus");
 
 // Opponent Video
 const opponentVideo = document.getElementById("opponentVideo");
@@ -70,7 +76,25 @@ callButton.addEventListener("click", () => {
         if (chatDataChannel && chatDataChannel.readyState === "open") {
             chatDataChannel.send(JSON.stringify({ type: "disconnect" }));
         }
-        disconnect()
+        disconnect();
+    }
+});
+chatButton.addEventListener("click", () => {
+    if (!isChatHidden) {
+        sidebar.style.display = "none";
+        document.querySelectorAll("video").forEach((video) => {
+            video.style.maxWidth = "calc(50vw - 6px)";
+        });
+        chatButtonIcon.textContent = "chat_bubble";
+        isChatHidden = true;
+    } else {
+        sidebar.style.display = "flex";
+        document.querySelectorAll("video").forEach((video) => {
+            video.style.maxWidth = "calc(40vw - 6px)";
+        });
+        chatButtonIcon.textContent = "chat";
+        chatButton.style.backgroundColor = "#ccc";
+        isChatHidden = false;
     }
 });
 
@@ -92,17 +116,17 @@ textField.addEventListener("keydown", (e) => {
 });
 
 // Get User Media
-navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+navigator.mediaDevices.getUserMedia({ video: {aspectRatio: 16 / 9}, audio: true })
     .then((stream) => {
         selfAudioTrack = stream.getAudioTracks()[0];
         micButtonIcon.textContent = "mic";
         selfVideoTrack = stream.getVideoTracks()[0];
         videocamButtonIcon.textContent = "videocam";
-        video.srcObject = stream;
-        video.onloadedmetadata = () => {
+        myVideo.srcObject = stream;
+        myVideo.onloadedmetadata = () => {
             toolbar.style.display = "flex";
         };
-        video.play();
+        myVideo.play();
     })
     .catch((err) => {
         console.error("Video Error:", err);
@@ -110,10 +134,10 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
 
 // Connect
 function connect() {
+    codeTextField.readOnly = true;
     callButtonIcon.textContent = "call_end";
     callButton.style.backgroundColor = "#F44336";
-    loadingSpinner.style.display = "inline-block";
-    statusText.style.display = "block";
+    connectionStatus.style.display = "flex";
 
     if (window.statusText) {
         window.statusText.textContent = window.localized.connecting;
@@ -125,8 +149,8 @@ function connect() {
     });
 
     // Add Video Track 
-    video.srcObject.getTracks().forEach((track) => {
-        rtcPeerConnection.addTrack(track, video.srcObject);
+    myVideo.srcObject.getTracks().forEach((track) => {
+        rtcPeerConnection.addTrack(track, myVideo.srcObject);
     });
 
     // On ICE Candidate
@@ -141,20 +165,19 @@ function connect() {
         if (!opponentVideo.srcObject) {
             opponentVideo.srcObject = event.streams[0];
             opponentVideo.play();
-            loadingSpinner.style.display = "none";
-            statusText.style.display = "none";
-
+            connectionStatus.style.display = "none";
             opponentVideo.style.display = "block";
-            log.style.display = "block";
-            textField.style.display = "block";
         }
     };
 
     // Websocket
-    webSocket = new WebSocket("wss://winesystem.servehttp.com/ws/");
+    // webSocket = new WebSocket("wss://winesystem.servehttp.com/ws/");
+    webSocket = new WebSocket("ws://localhost:3000");
     webSocket.addEventListener("open", async () => {
         console.log("WebSocket Connected");
-        
+
+        const code = codeTextField.value.trim();
+        webSocket.send(JSON.stringify({ type: "code", code: code }));
     });
 
     // On Message
@@ -207,14 +230,16 @@ function connect() {
 
 // Disconnect
 function disconnect() {
-    loadingSpinner.style.display = "none";
-    statusText.style.display = "none";
+    connectionStatus.style.display = "none";
+
+    chatButton.style.display = "none";
+    sidebar.style.display = "none";
     opponentVideo.srcObject = null;
     opponentVideo.style.display = "none";
-    log.style.display = "none";
-    textField.style.display = "none";
     callButtonIcon.textContent = "call";
     callButton.style.backgroundColor = "#4CAF50";
+    codeTextField.readOnly = false;
+
     // Remove Log Child
     while (log.firstChild) {
         log.removeChild(log.firstChild);
@@ -240,8 +265,15 @@ function createChatDataChannel(dataChannel) {
             messageElement.textContent = data.text;
             log.appendChild(messageElement);
             messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
+            if (isChatHidden) {
+                chatButtonIcon.textContent = "mark_chat_unread";
+                chatButton.style.backgroundColor = "rgba(65, 147, 239)";
+            }
         } else if (data.type === "disconnect") {
             disconnect()
         }
+    };
+    chatDataChannel.onopen = () => {
+        chatButton.style.display = "inline-block";
     };
 }

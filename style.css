@@ -4,17 +4,26 @@ body {
     width: 100vw;
     height: 100vh;
     margin: 0;
+    font-family: Verdana, "Hiragino Sans", 'Noto Sans JP', sans-serif;
+    display: flex;
+    overflow: hidden;
+}
+main {
+    flex: 4;
     box-sizing: border-box;
     padding: 4px;
     display: flex;
+    flex-direction: column;
     gap: 4px;
-    overflow: hidden;
 }
 video {
+    aspect-ratio: 16/9;
+    max-width: calc(50vw - 6px);
+    max-height: calc(100vh - 68px);
     box-sizing: border-box;
-    border: 4px solid #cccccc;
+    border: 4px solid #ccc;
     border-radius: 8px;
-    object-fit: contain;
+    object-fit: cover;
     background: black;
 }
 button {
@@ -24,10 +33,18 @@ button {
     border-radius: 44%;
     font-size: 16px;
     color: white;
-    background-color: #cccccc;
+    background-color: #ccc;
     cursor: pointer;
 }
+input {
+    border: none;
+    border-radius: 8px;
+    box-sizing: border-box;
+    outline: none;
+    background-color: rgba(240, 240, 240);
+}
 
+/* Icon */
 .material-symbols-rounded {
   font-variation-settings:
   'FILL' 1,
@@ -35,51 +52,36 @@ button {
   'GRAD' 0,
   'opsz' 24
 }
-.myMessage {
-    text-align: right;
-    color: black;
-    background-color: rgba(215, 215, 215);
-    margin: 4px;
-    padding: 4px;
-    padding-right: 8px;
-    padding-left: 8px;
-    border-radius: 8px;
-}
-.opponentMessage {
-    text-align: left;
-    color: black;
-    background-color: rgb(240, 240, 240);
-    margin: 4px;
-    padding: 4px;
-    padding-right: 8px;
-    padding-left: 8px;
-    border-radius: 8px;
-}
 
+/* Grid */
+#grid {
+    flex: 1;
+    display: grid;
+
+    gap: 4px;
+    place-items: center;
+}
 #myVideo {
-    flex: 2;
+    grid-column: 1 / 2;
     transform: scaleX(-1);
 }
-#sidebar {
-    flex: 1;
-    display: flex;
+#opponentVideo {
+    grid-column: 2 / 3;
+    display: none;
+}
+#connectionStatus {
+    grid-column: 2 / 3;
+    display: none;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     gap: 4px;
+    justify-content: center;  /* 横方向の中央 */
+    align-items: center;      /* 縦方向の中央 */
 }
-#toolbar {
-    display: none;
-    gap: 8px;
-}
-#callButton {
-    background-color: #4CAF50;
-}
-
 #loadingSpinner {
-    display: none;
+    display: blcok;
     width: 44px;
     height: 44px;
+    margin: 8px;
     border: 4px solid #ccc;
     border-top: 4px solid #333;
     border-radius: 50%;
@@ -89,28 +91,83 @@ button {
     to { transform: rotate(360deg); }
 }
 #statusText {
-    display: none;
+    display: blcok;
 }
 
-#opponentVideo {
-    width: 100%;
+/* Toolbar */
+#toolbar {
+    position: relative;
+    height: 60px;
+    border-radius: 8px;
+    box-sizing: border-box;
     display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background-color: #e5e5e5;
+}
+#callButton {
+    background-color: #4CAF50;
+}
+#chatButton {
+    position: absolute;
+    right: 8px;
+    display: none;
+}
+#code {
+    position: absolute;
+    left: 8px;
+    width: 144px;
+    height: 44px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Sidebar */
+#sidebar {
+    flex: 1;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    background-color: #e5e5e5;
 }
 #log {
-    display: none;
+    flex: 1;
+    display: flex;
     width: 100%;
     flex: 1;
+    flex-direction: column;
+    gap: 2px;
     overflow-y: auto;
 }
-#textField {
-    display: none;
-    width: 100%;
-    height: 44px;
-    box-sizing: border-box;
-    border: none;
-    border-radius: 8px;
-    outline: none;
+#log div {
+    width: fit-content; 
+    max-width: 75%;
+    padding: 4px;
+    padding-right: 8px;
     padding-left: 8px;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+.myMessage {
+    color: white;
+    background-color: #d1d1d1;
+    align-self: flex-end;
+}
+.opponentMessage {
+    color: black;
+    background-color: #fafafa;
+    align-self: flex-start;
+}
+#textField {
+    width: 100%;
+    height: 52px;
+    padding-left: 20px;
+    padding-right: 20px;
     font-size: 16px;
-    background-color: rgba(240, 240, 240);
 }
