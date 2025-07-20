@@ -44,8 +44,7 @@ const textField = document.getElementById("textField");
 
 // Window Event Listener
 window.addEventListener('resize', () => {
-    const vh = window.innerHeight;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    setInnerHeight()
 });
 
 // Toolbar Event Listener
@@ -137,6 +136,13 @@ navigator.mediaDevices.getUserMedia({ video: {aspectRatio: 16 / 9}, audio: true 
     .catch((err) => {
         console.error("Video Error:", err);
     });
+
+// Set Inner Height
+function setInnerHeight() {
+    const vh = window.innerHeight;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+setInnerHeight()
 
 // Connect
 function connect() {
