@@ -70,6 +70,7 @@ input {
     display: none;
 }
 #connectionStatus {
+    max-width: calc(50vw - 6px);
     grid-column: 2 / 3;
     display: none;
     flex-direction: column;
