@@ -96,8 +96,8 @@ input {
 
 /* Toolbar */
 #toolbar {
-    bottom: env(safe-area-inset-bottom);
     position: relative;
+    bottom: env(safe-area-inset-bottom);
     height: 60px;
     border-radius: 8px;
     box-sizing: border-box;
@@ -166,6 +166,7 @@ input {
     align-self: flex-start;
 }
 #textField {
+    position: absolute;
     bottom: env(safe-area-inset-bottom);
     width: 100%;
     height: 52px;
