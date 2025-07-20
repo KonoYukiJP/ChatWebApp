@@ -19,7 +19,7 @@ main {
 video {
     aspect-ratio: 16/9;
     max-width: calc(50vw - 6px);
-    max-height: calc(var(--vh, 100vh) - 68px - env(safe-area-inset-bottom));
+    max-height: calc(var(--vh, 100vh) - 68px);
     box-sizing: border-box;
     border: 4px solid #ccc;
     border-radius: 8px;
@@ -98,7 +98,7 @@ input {
 /* Toolbar */
 #toolbar {
     position: relative;
-    bottom: env(safe-area-inset-bottom);
+
     height: 60px;
     border-radius: 8px;
     box-sizing: border-box;
