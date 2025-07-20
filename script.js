@@ -242,6 +242,7 @@ function disconnect() {
     connectionStatus.style.display = "none";
 
     chatButton.style.display = "none";
+    isChatHidden = false
     chatButtonIcon.textContent = "chat_bubble"
     sidebar.style.display = "none";
     opponentVideo.srcObject = null;
