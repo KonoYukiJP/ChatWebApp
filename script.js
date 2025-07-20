@@ -13,8 +13,30 @@ let chatDataChannel = null;
 // WebSocket
 let webSocket = null;
 
-// My Video
+// Window
+const main = document.querySelector("main");
+const sidebar = document.getElementById("sidebar");
+const safeArea = parseInt(getComputedStyle(document.documentElement)
+    .getPropertyValue("env(safe-area-inset-bottom)"));
+if (safeArea > 0) {
+    main.style.paddingBottom = "env(safe-area-inset-bottom)";
+    sidebar.style.paddingBottom = "4 + env(safe-area-inset-bottom)";
+} else {
+    main.style.paddingBottom = "4px";
+    sidebar.style.paddingBottom = "8px";
+}
+// Window Event Listener
+window.addEventListener('resize', setInnerHeight);
+
+// Main
 const myVideo = document.getElementById("myVideo");
+const opponentVideo = document.getElementById("opponentVideo");
+// Connecting
+const connectionStatus = document.getElementById("connectionStatus");
+
+// Sidebar
+const log = document.getElementById("log");
+const textField = document.getElementById("textField");
 
 // Toolbar
 const codeTextField = document.getElementById("code")
@@ -23,28 +45,11 @@ const micButton = document.getElementById("micButton");
 const videocamButton = document.getElementById("videocamButton")
 const callButton = document.getElementById("callButton");
 const chatButton = document.getElementById("chatButton");
-
 // Toolbar Icon
 const micButtonIcon = micButton.querySelector(".material-symbols-rounded");
 const videocamButtonIcon = videocamButton.querySelector(".material-symbols-rounded");
 const callButtonIcon = callButton.querySelector(".material-symbols-rounded");
 const chatButtonIcon = chatButton.querySelector(".material-symbols-rounded");
-
-// Sidebar
-const sidebar = document.getElementById("sidebar");
-
-// Connecting
-const connectionStatus = document.getElementById("connectionStatus");
-
-// Opponent Video
-const opponentVideo = document.getElementById("opponentVideo");
-// Chat
-const log = document.getElementById("log");
-const textField = document.getElementById("textField");
-
-// Window Event Listener
-window.addEventListener('resize', setInnerHeight);
-
 // Toolbar Event Listener
 micButton.addEventListener("click", () => {
     if (!selfAudioTrack) return;
@@ -59,6 +64,10 @@ micButton.addEventListener("click", () => {
         micButtonIcon.textContent = "mic_off";
     }
 });
+
+
+
+
 videocamButton.addEventListener("click", () => {
     if (!selfVideoTrack) return;
 
