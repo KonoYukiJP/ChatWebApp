@@ -12,6 +12,7 @@ main {
     flex: 4;
     box-sizing: border-box;
     padding: 4px;
+    padding-bottom: env(safe-area-inset-bottom);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -98,7 +99,6 @@ input {
 /* Toolbar */
 #toolbar {
     position: relative;
-
     height: 60px;
     border-radius: 8px;
     box-sizing: border-box;
@@ -133,6 +133,7 @@ input {
     height: 100%;
     box-sizing: border-box;
     padding: 8px;
+    padding-bottom: calc(4px + (safe-area-inset-bottom));
     display: none;
     flex-direction: column;
     gap: 8px;
@@ -167,8 +168,6 @@ input {
     align-self: flex-start;
 }
 #textField {
-    position: relative;
-    bottom: env(safe-area-inset-bottom);
     width: 100%;
     height: 52px;
     padding-left: 20px;
