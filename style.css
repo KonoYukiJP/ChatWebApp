@@ -4,6 +4,7 @@ body {
     width: 100vw;
     height: var(--vh, 100vh);
     margin: 0;
+    padding-bottom: env(safe-area-inset-bottom);
     font-family: Verdana, "Hiragino Sans", 'Noto Sans JP', sans-serif;
     display: flex;
     overflow: hidden;

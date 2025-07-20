@@ -43,9 +43,7 @@ const log = document.getElementById("log");
 const textField = document.getElementById("textField");
 
 // Window Event Listener
-window.addEventListener('resize', () => {
-    setInnerHeight()
-});
+window.addEventListener('resize', setInnerHeight);
 
 // Toolbar Event Listener
 micButton.addEventListener("click", () => {
