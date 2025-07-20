@@ -2,7 +2,7 @@
 
 body {
     width: 100vw;
-    height: 100vh;
+    height: var(--vh, 100vh);
     margin: 0;
     font-family: Verdana, "Hiragino Sans", 'Noto Sans JP', sans-serif;
     display: flex;

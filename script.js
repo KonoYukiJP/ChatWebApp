@@ -42,6 +42,12 @@ const opponentVideo = document.getElementById("opponentVideo");
 const log = document.getElementById("log");
 const textField = document.getElementById("textField");
 
+// Window Event Listener
+window.addEventListener('resize', () => {
+    const vh = window.innerHeight;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+});
+
 // Toolbar Event Listener
 micButton.addEventListener("click", () => {
     if (!selfAudioTrack) return;
@@ -68,7 +74,7 @@ videocamButton.addEventListener("click", () => {
         selfVideoTrack.enabled = false;
         videocamButtonIcon.textContent = "videocam_off";
     }
-})
+});
 callButton.addEventListener("click", () => {
     if (!isConnected) {
         connect();
