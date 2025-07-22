@@ -13,28 +13,18 @@ let chatDataChannel = null;
 // WebSocket
 let webSocket = null;
 
-// Window
+// Main
 const main = document.querySelector("main");
-const sidebar = document.getElementById("sidebar");
 const safeArea = parseInt(getComputedStyle(document.documentElement)
     .getPropertyValue("env(safe-area-inset-bottom)"));
-if (safeArea > 0) {
-    main.style.paddingBottom = "env(safe-area-inset-bottom)";
-    sidebar.style.paddingBottom = "4 + env(safe-area-inset-bottom)";
-} else {
-    main.style.paddingBottom = "4px";
-    sidebar.style.paddingBottom = "8px";
-}
-// Window Event Listener
-window.addEventListener('resize', setInnerHeight);
-
-// Main
+const videos = document.querySelectorAll("video");
 const myVideo = document.getElementById("myVideo");
 const opponentVideo = document.getElementById("opponentVideo");
 // Connecting
 const connectionStatus = document.getElementById("connectionStatus");
 
 // Sidebar
+const sidebar = document.getElementById("sidebar");
 const log = document.getElementById("log");
 const textField = document.getElementById("textField");
 
@@ -50,6 +40,22 @@ const micButtonIcon = micButton.querySelector(".material-symbols-rounded");
 const videocamButtonIcon = videocamButton.querySelector(".material-symbols-rounded");
 const callButtonIcon = callButton.querySelector(".material-symbols-rounded");
 const chatButtonIcon = chatButton.querySelector(".material-symbols-rounded");
+
+// Safe Area
+if (safeArea > 0) {
+    main.style.paddingBottom = "env(safe-area-inset-bottom)";
+    sidebar.style.paddingBottom = "4 + env(safe-area-inset-bottom)";
+} else {
+    main.style.paddingBottom = "4px";
+    sidebar.style.paddingBottom = "8px";
+}
+
+// Window Event Listener
+window.addEventListener('resize', () => {
+    setWindowInnerHeight()
+    resizeVideos()
+});
+
 // Toolbar Event Listener
 micButton.addEventListener("click", () => {
     if (!selfAudioTrack) return;
@@ -64,10 +70,6 @@ micButton.addEventListener("click", () => {
         micButtonIcon.textContent = "mic_off";
     }
 });
-
-
-
-
 videocamButton.addEventListener("click", () => {
     if (!selfVideoTrack) return;
 
@@ -93,20 +95,16 @@ callButton.addEventListener("click", () => {
 });
 chatButton.addEventListener("click", () => {
     if (!isChatHidden) {
-        sidebar.style.display = "none";
-        document.querySelectorAll("video").forEach((video) => {
-            video.style.maxWidth = "calc(50vw - 6px)";
-        });
-        chatButtonIcon.textContent = "chat_bubble";
         isChatHidden = true;
+        sidebar.style.display = "none";
+        resizeVideos()
+        chatButtonIcon.textContent = "chat_bubble";
     } else {
+        isChatHidden = false;
         sidebar.style.display = "flex";
-        document.querySelectorAll("video").forEach((video) => {
-            video.style.maxWidth = "calc(40vw - 6px)";
-        });
+        resizeVideos()
         chatButtonIcon.textContent = "chat";
         chatButton.style.backgroundColor = "#ccc";
-        isChatHidden = false;
     }
 });
 
@@ -139,17 +137,47 @@ navigator.mediaDevices.getUserMedia({ video: {aspectRatio: 16 / 9}, audio: true 
             toolbar.style.display = "flex";
         };
         myVideo.play();
+
+        analyzeAudioWith(stream, myVideo)
     })
     .catch((err) => {
         console.error("Video Error:", err);
     });
 
-// Set Inner Height
-function setInnerHeight() {
+// Set Window Inner Height
+function setWindowInnerHeight() {
     const vh = window.innerHeight;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
-setInnerHeight()
+setWindowInnerHeight()
+
+// Resize Videos
+function resizeVideos() {
+    const mainStyle = window.getComputedStyle(main);
+    const mainPadding = parseInt(mainStyle.padding);
+    const mainPaddingBottom = parseInt(mainStyle.paddingBottom);
+    const mainGap = parseInt(mainStyle.gap);
+    const toolbarHeight = toolbar.offsetHeight;
+    // Grid
+    const grid = document.getElementById("grid");
+    const gridGap = parseInt(window.getComputedStyle(grid).gap);
+    const gridWidth = isChatHidden
+        ? window.innerWidth / 2 - mainPadding - gridGap / 2 - 16
+        : window.innerWidth * 2 / 5 - 2 * mainPadding - gridGap / 2 - 16;
+    const gridHeight = window.innerHeight - mainPadding - mainPaddingBottom - mainGap - toolbarHeight - 16;
+    if (gridWidth / gridHeight > 16 / 9) {
+        videos.forEach((video) => {
+            video.style.height = gridHeight + "px";
+            video.style.width = (gridHeight * 16 / 9) + "px";
+        });
+    } else {
+        videos.forEach((video) => {
+            video.style.width = (gridWidth) + "px";
+            video.style.height = (gridWidth / 16 * 9) + "px";
+        });
+    }
+}
+resizeVideos()
 
 // Connect
 function connect() {
@@ -186,6 +214,7 @@ function connect() {
             opponentVideo.play();
             connectionStatus.style.display = "none";
             opponentVideo.style.display = "block";
+            analyzeAudioWith(event.streams[0], opponentVideo);
         }
     };
 
@@ -297,4 +326,25 @@ function createChatDataChannel(dataChannel) {
     chatDataChannel.onopen = () => {
         chatButton.style.display = "inline-block";
     };
+}
+
+// Audio Analysis
+function analyzeAudioWith(stream, video) {
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(stream);
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    const spectrumData = new Uint8Array(analyser.frequencyBinCount);
+    source.connect(analyser);
+
+    function updateBorder() {
+        analyser.getByteFrequencyData(spectrumData);
+        const volume = spectrumData.reduce((a, b) => a + b) / spectrumData.length;
+
+        const borderColor = (volume > 20) ? "#4caf50" : "white";
+        video.style.border = `4px solid ${borderColor}`;
+        
+        requestAnimationFrame(updateBorder);
+    }
+    updateBorder();
 }
