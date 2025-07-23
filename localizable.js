@@ -23,9 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const codeTextField = document.getElementById("code");
     if (codeTextField) codeTextField.placeholder = localized.code
 
-    window.statusText = document.getElementById("statusText");
+    window.statusText = document.getElementById("status-text");
     if (window.statusText) window.statusText.textContent = localized.connecting;
 
-    const textField = document.getElementById("textField");
+    const textField = document.getElementById("text-field");
     if (textField) textField.placeholder = localized.placeholder;
 });

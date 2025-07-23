@@ -18,9 +18,8 @@ main {
     gap: 4px;
 }
 video {
-    border: 4px solid white;
-    border-radius: 8px;
-    padding: 4px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 button {
@@ -58,20 +57,43 @@ input {
     justify-content: center;
     align-items: center;
 }
-#myVideo {
+.video-wrapper {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden
+}
+#self-video {
     transform: scaleX(-1);
 }
-#opponentVideo {
+#peer-video-wrapper {
     display: none;
 }
-#connectionStatus {
+.audio-visualizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 4px solid #4caf50;
+    border-radius: 8px;
+    box-sizing: border-box;
+    box-shadow: inset 0 0 0 1px white;
+    display: none;
+    pointer-events: none;
+}
+#connection-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: none;
     flex-direction: column;
     gap: 4px;
     justify-content: center;  /* 横方向の中央 */
     align-items: center;      /* 縦方向の中央 */
 }
-#loadingSpinner {
+#loading-spinner {
     display: blcok;
     width: 44px;
     height: 44px;
@@ -84,7 +106,7 @@ input {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
-#statusText {
+#status-text {
     display: blcok;
 }
 
@@ -101,14 +123,6 @@ input {
     gap: 8px;
     background-color: #e5e5e5;
 }
-#callButton {
-    background-color: #4CAF50;
-}
-#chatButton {
-    position: absolute;
-    right: 8px;
-    display: none;
-}
 #code {
     position: absolute;
     left: 8px;
@@ -118,6 +132,14 @@ input {
     padding-right: 10px;
     font-size: 16px;
     text-align: center;
+}
+#call-button {
+    background-color: #4CAF50;
+}
+#chat-button {
+    position: absolute;
+    right: 8px;
+    display: none;
 }
 
 /* Sidebar */
@@ -150,17 +172,17 @@ input {
     border-radius: 8px;
     overflow-wrap: anywhere;
 }
-.myMessage {
+.self-message {
     color: white;
     background-color: #d1d1d1;
     align-self: flex-end;
 }
-.opponentMessage {
+.peer-message {
     color: black;
     background-color: #fafafa;
     align-self: flex-start;
 }
-#textField {
+#text-field {
     width: 100%;
     height: 52px;
     padding-left: 20px;

@@ -15,32 +15,36 @@ let webSocket = null;
 
 // Main
 const main = document.querySelector("main");
-const safeArea = parseInt(getComputedStyle(document.documentElement)
-    .getPropertyValue("env(safe-area-inset-bottom)"));
-const videos = document.querySelectorAll("video");
-const myVideo = document.getElementById("myVideo");
-const opponentVideo = document.getElementById("opponentVideo");
-// Connecting
-const connectionStatus = document.getElementById("connectionStatus");
+// Self
+const selfVideo = document.getElementById("self-video");
+const selfAudioVisualizer = document.getElementById("self-audio-visualizer");
+// Peer
+const peerVideoWrapper = document.getElementById("peer-video-wrapper")
+const peerVideo = document.getElementById("peer-video");
+const peerAudioVisualizer = document.getElementById("peer-audio-visualizer");
+const connectionStatus = document.getElementById("connection-status");
 
 // Sidebar
 const sidebar = document.getElementById("sidebar");
 const log = document.getElementById("log");
-const textField = document.getElementById("textField");
+const textField = document.getElementById("text-field");
 
 // Toolbar
 const codeTextField = document.getElementById("code")
 const toolbar = document.getElementById("toolbar");
-const micButton = document.getElementById("micButton");
-const videocamButton = document.getElementById("videocamButton")
-const callButton = document.getElementById("callButton");
-const chatButton = document.getElementById("chatButton");
+const micButton = document.getElementById("mic-button");
+const videocamButton = document.getElementById("videocam-button")
+const callButton = document.getElementById("call-button");
+const chatButton = document.getElementById("chat-button");
 // Toolbar Icon
 const micButtonIcon = micButton.querySelector(".material-symbols-rounded");
 const videocamButtonIcon = videocamButton.querySelector(".material-symbols-rounded");
 const callButtonIcon = callButton.querySelector(".material-symbols-rounded");
 const chatButtonIcon = chatButton.querySelector(".material-symbols-rounded");
 
+// Safe Area
+const safeArea = parseInt(getComputedStyle(document.documentElement)
+    .getPropertyValue("env(safe-area-inset-bottom)"));
 // Safe Area
 if (safeArea > 0) {
     main.style.paddingBottom = "env(safe-area-inset-bottom)";
@@ -115,10 +119,10 @@ textField.addEventListener("keydown", (e) => {
     const message = textField.value.trim();
     if (!message || chatDataChannel.readyState !== "open") return;
     
-    // My Message
+    // Self Message
     chatDataChannel.send(JSON.stringify({ type: "message", text: message }));
     const messageElement = document.createElement("div");
-    messageElement.classList.add("myMessage")
+    messageElement.classList.add("self-message")
     messageElement.textContent = message;
     log.appendChild(messageElement);
     messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -132,13 +136,13 @@ navigator.mediaDevices.getUserMedia({ video: {aspectRatio: 16 / 9}, audio: true 
         micButtonIcon.textContent = "mic";
         selfVideoTrack = stream.getVideoTracks()[0];
         videocamButtonIcon.textContent = "videocam";
-        myVideo.srcObject = stream;
-        myVideo.onloadedmetadata = () => {
+        selfVideo.srcObject = stream;
+        selfVideo.onloadedmetadata = () => {
             toolbar.style.display = "flex";
         };
-        myVideo.play();
+        selfVideo.play();
 
-        analyzeAudioWith(stream, myVideo)
+        analyzeAudioWith(stream, selfAudioVisualizer)
     })
     .catch((err) => {
         console.error("Video Error:", err);
@@ -162,28 +166,51 @@ function resizeVideos() {
     const grid = document.getElementById("grid");
     const gridGap = parseInt(window.getComputedStyle(grid).gap);
     const gridWidth = isChatHidden
-        ? window.innerWidth / 2 - mainPadding - gridGap / 2 - 16
-        : window.innerWidth * 2 / 5 - 2 * mainPadding - gridGap / 2 - 16;
-    const gridHeight = window.innerHeight - mainPadding - mainPaddingBottom - mainGap - toolbarHeight - 16;
+        ? window.innerWidth / 2 - mainPadding - gridGap / 2
+        : window.innerWidth * 2 / 5 - 2 * mainPadding - gridGap / 2;
+    const gridHeight = window.innerHeight - mainPadding - mainPaddingBottom - mainGap - toolbarHeight;
     if (gridWidth / gridHeight > 16 / 9) {
-        videos.forEach((video) => {
-            video.style.height = gridHeight + "px";
-            video.style.width = (gridHeight * 16 / 9) + "px";
+        document.querySelectorAll(".video-wrapper") .forEach((videWrapper) => {
+            videWrapper.style.height = gridHeight + "px";
+            videWrapper.style.width = (gridHeight * 16 / 9) + "px";
         });
     } else {
-        videos.forEach((video) => {
-            video.style.width = (gridWidth) + "px";
-            video.style.height = (gridWidth / 16 * 9) + "px";
+        document.querySelectorAll(".video-wrapper") .forEach((videoWrapper) => {
+            videoWrapper.style.width = (gridWidth) + "px";
+            videoWrapper.style.height = (gridWidth / 16 * 9) + "px";
         });
     }
 }
 resizeVideos()
+
+// Audio Analysis
+function analyzeAudioWith(stream, audioVisualizer) {
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(stream);
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    const spectrumData = new Uint8Array(analyser.frequencyBinCount);
+    source.connect(analyser);
+
+    function updateBorder() {
+        analyser.getByteFrequencyData(spectrumData);
+        const volume = spectrumData.reduce((a, b) => a + b) / spectrumData.length;
+        if (volume > 20) {
+            
+        }
+        audioVisualizer.style.display = (volume > 20) ? "block" : "none";
+        
+        requestAnimationFrame(updateBorder);
+    }
+    updateBorder();
+}
 
 // Connect
 function connect() {
     codeTextField.readOnly = true;
     callButtonIcon.textContent = "call_end";
     callButton.style.backgroundColor = "#F44336";
+    peerVideoWrapper.style.display = "block";
     connectionStatus.style.display = "flex";
 
     if (window.statusText) {
@@ -196,8 +223,8 @@ function connect() {
     });
 
     // Add Video Track 
-    myVideo.srcObject.getTracks().forEach((track) => {
-        rtcPeerConnection.addTrack(track, myVideo.srcObject);
+    selfVideo.srcObject.getTracks().forEach((track) => {
+        rtcPeerConnection.addTrack(track, selfVideo.srcObject);
     });
 
     // On ICE Candidate
@@ -209,12 +236,11 @@ function connect() {
 
     // On Track
     rtcPeerConnection.ontrack = (event) => {
-        if (!opponentVideo.srcObject) {
-            opponentVideo.srcObject = event.streams[0];
-            opponentVideo.play();
+        if (!peerVideo.srcObject) {
+            peerVideo.srcObject = event.streams[0];
+            peerVideo.play();
             connectionStatus.style.display = "none";
-            opponentVideo.style.display = "block";
-            analyzeAudioWith(event.streams[0], opponentVideo);
+            analyzeAudioWith(event.streams[0], peerAudioVisualizer);
         }
     };
 
@@ -284,8 +310,8 @@ function disconnect() {
     chatButtonIcon.textContent = "chat_bubble";
     chatButton.style.backgroundColor = "#ccc";
     sidebar.style.display = "none";
-    opponentVideo.srcObject = null;
-    opponentVideo.style.display = "none";
+    peerVideo.srcObject = null;
+    peerVideoWrapper.style.display = "none";
     callButtonIcon.textContent = "call";
     callButton.style.backgroundColor = "#4CAF50";
     codeTextField.readOnly = false;
@@ -306,12 +332,12 @@ function disconnect() {
 function createChatDataChannel(dataChannel) {
     chatDataChannel = dataChannel
 
-    // Opponent Message
+    // Peer Message
     chatDataChannel.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === "message") {
             const messageElement = document.createElement("div");
-            messageElement.classList.add("opponentMessage");
+            messageElement.classList.add("peer-message");
             messageElement.textContent = data.text;
             log.appendChild(messageElement);
             messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -326,25 +352,4 @@ function createChatDataChannel(dataChannel) {
     chatDataChannel.onopen = () => {
         chatButton.style.display = "inline-block";
     };
-}
-
-// Audio Analysis
-function analyzeAudioWith(stream, video) {
-    const audioContext = new AudioContext();
-    const source = audioContext.createMediaStreamSource(stream);
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    const spectrumData = new Uint8Array(analyser.frequencyBinCount);
-    source.connect(analyser);
-
-    function updateBorder() {
-        analyser.getByteFrequencyData(spectrumData);
-        const volume = spectrumData.reduce((a, b) => a + b) / spectrumData.length;
-
-        const borderColor = (volume > 20) ? "#4caf50" : "white";
-        video.style.border = `4px solid ${borderColor}`;
-        
-        requestAnimationFrame(updateBorder);
-    }
-    updateBorder();
 }

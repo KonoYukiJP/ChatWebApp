@@ -11,29 +11,36 @@
     <!-- My Video -->
     <main>
         <div id="grid">
-            <video id="myVideo" muted playsinline></video>
-            <video id="opponentVideo" playsinline></video>
-            <!-- Connecting View -->
-            <div id="connectionStatus">
-                <span id="loadingSpinner"></span>
-                <span id="statusText"></span>
+            <div class="video-wrapper">
+                <video id="self-video" muted playsinline></video>
+                <div id="self-audio-visualizer" class="audio-visualizer"></div>
+            </div>
+            <div id="peer-video-wrapper" class="video-wrapper">
+                <video id="peer-video" playsinline></video>
+                <div id="peer-audio-visualizer" class="audio-visualizer"></div>
+
+                <!-- Connecting View -->
+                <div id="connection-status">
+                    <span id="loading-spinner"></span>
+                    <span id="status-text"></span>
+                </div>
             </div>
         </div>
 
         <!-- Tool -->
         <div id="toolbar">
             <input id="code" type="text" maxlength="8">
-            <button id="micButton"><span class="material-symbols-rounded">mic_off</span></button>
-            <button id="videocamButton"><span class="material-symbols-rounded">videocam_off</span></button>
-            <button id="callButton"><span class="material-symbols-rounded">call</span></button>
-            <button id="chatButton"><span class="material-symbols-rounded">chat_bubble</span></button>
+            <button id="mic-button"><span class="material-symbols-rounded">mic_off</span></button>
+            <button id="videocam-button"><span class="material-symbols-rounded">videocam_off</span></button>
+            <button id="call-button"><span class="material-symbols-rounded">call</span></button>
+            <button id="chat-button"><span class="material-symbols-rounded">chat_bubble</span></button>
         </div>
     </main>
 
     <!-- Chat -->
     <div id="sidebar">
         <div id="log"></div>
-        <input id="textField" type="text">
+        <input id="text-field" type="text">
     </div>
 
     <script src="localizable.js"></script>
